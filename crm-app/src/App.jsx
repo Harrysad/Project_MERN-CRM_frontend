@@ -7,6 +7,7 @@ import CustomerList from './components/CustomerList';
 
 function App() {
   const [customers, setCustomers] = useState([]);
+  const [showMore, setShowMore] = useState(false);
 
   useEffect(() => {
     getCustomers();
@@ -32,6 +33,7 @@ function App() {
           console.log(res.data);
           if (res.data.deleted) {
             getCustomers();
+            setShowMore(false);
           }
         })
         .catch((err) => {
@@ -43,7 +45,12 @@ function App() {
   return (
     <>
       <div className="App">
-        <CustomerList customers={customers} deleteCustomer={deleteCustomer} />
+        <CustomerList 
+          customers={customers} 
+          deleteCustomer={deleteCustomer} 
+          showMore={showMore}
+          setShowMore={setShowMore}
+          />
       </div>
     </>
   )

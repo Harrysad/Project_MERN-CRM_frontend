@@ -1,8 +1,7 @@
 import './CustomerList.css'
 import React, { useEffect, useState } from 'react';
 
-const CustomerList = ({ customers, deleteCustomer, ...rest }) => {
-    const [showMore, setShowMore] = useState(false);
+const CustomerList = ({ customers, deleteCustomer, showMore, setShowMore, ...rest }) => {
     return (
         <table {...rest}>
             <thead>
