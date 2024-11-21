@@ -1,16 +1,52 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
+import axios from "axios";
+import config from './config';
+import React, { useEffect, useState } from 'react';
+
+import CustomerList from './components/CustomerList';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [customers, setCustomers] = useState([]);
+
+  useEffect(() => {
+    getCustomers();
+  }, []);
+
+  const getCustomers = () => {
+    axios
+      .get(config.api.url + '')
+      .then((res) => {
+        setCustomers(res.data);
+      })
+      .catch((err) => {
+        console.error(err)
+      })
+  };
+
+  const deleteCustomer = (rowId) => {
+    if (window.confirm("Czy na pewno chcesz usunąć klienta z bazy dancyh?")) {
+      console.log(rowId);
+      axios
+        .delete(config.api.url + '/delete/' + rowId)
+        .then((res) => {
+          console.log(res.data);
+          if (res.data.deleted) {
+            getCustomers();
+          }
+        })
+        .catch((err) => {
+          console.error(err);
+        })
+    }
+  };
 
   return (
     <>
-      
+      <div className="App">
+        <CustomerList customers={customers} deleteCustomer={deleteCustomer} />
+      </div>
     </>
   )
 }
 
-export default App
+export default App;
