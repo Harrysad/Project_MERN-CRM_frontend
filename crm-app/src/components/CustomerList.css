@@ -1,5 +1,6 @@
 table {
     width: 100%;
+    margin-top: 20px;
     border-collapse: collapse;
 }
 
@@ -21,6 +22,10 @@ th {
     text-align: left;
 }
 
+button {
+    font-size: x-small;
+}
+
 button.delete {
     padding: 10px;
     border: 1px solid #111;
@@ -31,3 +36,27 @@ button.delete:hover {
     cursor: pointer;
     background-color: #f5d2d2;
 }
+
+@media (min-width: 576px) {
+    table {
+      width: 70%;
+    }
+  }
+  
+  @media (min-width: 720px) {
+    table {
+      width: 50%;
+    }
+  }
+  
+  @media (min-width: 960px) {
+    table {
+      width: 40%;
+    }
+  }
+  
+  @media (min-width: 1140px) {
+    table {
+      width: 30%;
+    }
+  }

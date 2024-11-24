@@ -1,7 +1,18 @@
 import './CustomerList.css'
-import React, { useEffect, useState } from 'react';
+import React from 'react';
+import { useNavigate } from "react-router-dom";
 
 const CustomerList = ({ customers, deleteCustomer, showMore, setShowMore, ...rest }) => {
+    const navigate = useNavigate();
+
+    const handleEditClick = (id) => {
+        navigate(`/customers/edit/${id}`);
+    };
+
+    const handleDetailsClick = (id) => {
+      navigate(`/customers/${id}`);  
+    };
+
     return (
         <table {...rest}>
             <thead>
@@ -30,23 +41,15 @@ const CustomerList = ({ customers, deleteCustomer, showMore, setShowMore, ...res
                                 {
                                     showMore ? (
                                         <>
-                                            <button
-                                                onClick={() => {
-                                                    console.log('Edytuj');
-                                                }}
+                                            <button onClick={() => handleEditClick(row._id)}
                                                 className='edit'>Edytuj</button>
-                                            <button
-                                                onClick={() => {
-                                                    console.log('Pokaż szczegóły');
-                                                }}
+                                            <button onClick={() => handleDetailsClick(row._id)}
                                                 className='details'>Pokaż szczegóły</button>
-                                            <button
-                                                onClick={() => {
-                                                    deleteCustomer(row._id);
-                                                }}
+                                            <button onClick={() => {
+                                                deleteCustomer(row._id);
+                                            }}
                                                 className='delete'>Usuń</button>
-                                            <button
-                                                onClick={() => setShowMore(false)}
+                                            <button onClick={() => setShowMore(false)}
                                                 className='show-less'>Pokaż mniej</button>
                                         </>
                                     ) : (
