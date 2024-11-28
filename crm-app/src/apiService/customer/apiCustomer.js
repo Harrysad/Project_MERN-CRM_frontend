@@ -41,7 +41,7 @@ export const deleteCustomer = async (id) => {
 
 export const updateCustomer = async (id, payload) => {
   try {
-    const response = await api.put(`/${id}`, payload);
+    const response = await api.put(`/edit/${id}`, payload);
     return response.data;
   } catch (error) {
     console.error("Błąd podczas pobierania danych:", error);

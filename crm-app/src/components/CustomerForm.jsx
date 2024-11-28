@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import FloatingLabel from "react-bootstrap/FloatingLabel";
-import Form from "react-bootstrap/Form";
+import { Form } from "react-bootstrap";
 
 import {
   addCustomer,
@@ -61,7 +61,6 @@ const CustomerForm = ({ getCustomers }) => {
         .then(() => {
           navigate("/");
           getCustomers();
-          // window.location.reload();
         })
         .catch((err) => {
           console.error(err);
@@ -71,16 +70,15 @@ const CustomerForm = ({ getCustomers }) => {
         .then(() => {
           navigate("/");
           getCustomers();
-          // window.location.reload();
         })
         .catch((err) => {
-          console.error("Tu jest błąd", err);
+          console.error(err);
         });
     }
   };
 
   return (
-    <form className="formContainer" onSubmit={handleSubmit}>
+    <Form className="formContainer" onSubmit={handleSubmit}>
       <h1>{id ? "Edytuj klienta" : "Dodaj nowego klienta"}</h1>
       <FloatingLabel controlId="floatingInput" label="Nazwa firmy" className="mb-3">
         <FormControl
@@ -148,7 +146,7 @@ const CustomerForm = ({ getCustomers }) => {
       </FloatingLabel>
 
       <button type="submit">{id ? "Zapisz zmiany" : "Dodaj klienta"}</button>
-    </form>
+    </Form>
   );
 };
 
