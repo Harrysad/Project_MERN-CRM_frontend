@@ -6,6 +6,7 @@ import { getCustomers } from "./apiService/customer/apiCustomer";
 import CustomerDetails from "./components/CustomerDetails";
 import CustomerForm from "./components/CustomerForm";
 import CustomerList from "./components/CustomerList";
+import { SignUpSignIn } from "./components/SignUpSignIn";
 
 function App() {
   const [customers, setCustomers] = useState([]);
@@ -23,7 +24,7 @@ function App() {
   return (
     <>
       <div className="App">
-        <nav className="navbar navbar-dark bg-dark fixed-top">
+        {/* <nav className="navbar navbar-dark bg-dark fixed-top">
           <div className="container-fluid">
             <a className="navbar-brand" href="/">
               Customers Relatioship Management
@@ -71,8 +72,9 @@ function App() {
               </div>
             </div>
           </div>
-        </nav>
+        </nav> */}
         <Routes>
+          <Route path="/Home" element={<SignUpSignIn />} />
           <Route
             path="/"
             element={
