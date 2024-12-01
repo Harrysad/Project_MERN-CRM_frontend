@@ -3,8 +3,8 @@ import GenericModal from "./GenericModal";
 import FloatingLabel from "react-bootstrap/FloatingLabel";
 import { FormControl } from "react-bootstrap";
 
-const ActionFormModal = ({ show, onClose, onChange, value, onConfirm, customerName}) => {
-  const title = `Dodawanie nowej akcji dla ${customerName}`;
+const ActionFormEditModal = ({ show, onClose, onChange, value, onConfirm, actionId}) => {
+  const title = `Edycja akcji nr. ${value.index}`;
   const body = (
     <>
     <FloatingLabel controlId="floatingInput" label="Typ akcji" className="mb-3">
@@ -44,8 +44,8 @@ const ActionFormModal = ({ show, onClose, onChange, value, onConfirm, customerNa
       <Button variant="secondary" onClick={onClose}>
         Anuluj
       </Button>
-      <Button variant="success" onClick={onConfirm}>
-        Dodaj
+      <Button variant="success" onClick={onConfirm(actionId)}>
+        Zapisz
       </Button>
     </>
   );
@@ -60,4 +60,4 @@ const ActionFormModal = ({ show, onClose, onChange, value, onConfirm, customerNa
   );
 };
 
-export default ActionFormModal;
+export default ActionFormEditModal;

@@ -1,10 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, NavLink } from "react-router-dom";
 
-import {
-  getCustomer,
-  updateCustomer,
-} from "../apiService/customer/apiCustomer";
+import { getCustomer } from "../apiService/customer/apiCustomer";
 import ActionList from "./ActionList";
 import { addAction } from "../apiService/action/apiActions";
 import { Button } from "react-bootstrap";
@@ -20,7 +17,7 @@ function CustomerDetails() {
     date: "",
   });
 
-  useEffect(() => {
+  const getCustomerData = () => {
     getCustomer(id)
       .then((customer) => {
         setCustomer(customer);
@@ -28,6 +25,10 @@ function CustomerDetails() {
       .catch((err) => {
         console.error(err);
       });
+  };
+
+  useEffect(() => {
+    getCustomerData();
   }, [id]);
 
   const handleAction = (e) => {
@@ -38,13 +39,14 @@ function CustomerDetails() {
     }));
   };
 
-  const handleSubmit = (e) => {
-    addAction(id, newAction)
-      .then((res) => {
-        updateCustomer((prev) => ({
-          ...prev,
-          actions: [...prev.actions, res.data],
-        }));
+  const handleSubmit = () => {
+    addAction({
+      ...newAction,
+      customer: id,
+    })
+      .then(() => {
+        getCustomerData();
+        setModalVisible(false);
       })
       .catch((err) => {
         console.error(err);
@@ -72,7 +74,10 @@ function CustomerDetails() {
           Dodaj nową akcję
         </Button>
         {customer?.actions?.length > 0 ? (
-          <ActionList actions={customer.actions} />
+          <ActionList
+            actions={customer.actions}
+            onActionDelete={getCustomerData}
+          />
         ) : (
           <p>Brak akcji dla tego klienta</p>
         )}
@@ -84,6 +89,7 @@ function CustomerDetails() {
         onChange={handleAction}
         value={newAction}
         onConfirm={handleSubmit}
+        customerName={customer?.name}
       />
     </>
   );

@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { deleteCustomer } from "../apiService/customer/apiCustomer";
 import { NavLink } from "react-router-dom";
-import DeleteClientModal from "./modals/DeleteClientModal";
 import Table from "react-bootstrap/Table";
+import { formatZipCode } from "../helpers/helpers";
+import DeleteModal from "./modals/DeleteModal";
 
 const CustomerList = ({ customers, handleGetCustomers }) => {
   const [showMore, setShowMore] = useState(false);
@@ -24,6 +25,7 @@ const CustomerList = ({ customers, handleGetCustomers }) => {
         .finally(() => {
           setModalVisible(false);
           setSelectedCustomerId(false);
+          handleGetCustomers();
         });
     }
   };
@@ -47,8 +49,7 @@ const CustomerList = ({ customers, handleGetCustomers }) => {
                 <td>{index + 1}</td>
                 <td>{row.name}</td>
                 <td>
-                  {row.address.postcode.slice(0, 2)}-
-                  {row.address.postcode.slice(2)} {row.address.city}
+                  {formatZipCode(row.address.postcode)} {row.address.city}
                   <br />
                   {row.address.street} {row.address.suite}
                 </td>
@@ -56,10 +57,16 @@ const CustomerList = ({ customers, handleGetCustomers }) => {
                 <td>
                   {showMore ? (
                     <>
-                      <NavLink to={`/customers/edit/${row._id}`} className="btn btn-primary">
+                      <NavLink
+                        to={`/customers/edit/${row._id}`}
+                        className="btn btn-primary"
+                      >
                         Edytuj
                       </NavLink>
-                      <NavLink to={`/customers/${row._id}`} className="btn btn-info">
+                      <NavLink
+                        to={`/customers/${row._id}`}
+                        className="btn btn-info"
+                      >
                         Pokaż szczegóły
                       </NavLink>
                       <button
@@ -93,7 +100,7 @@ const CustomerList = ({ customers, handleGetCustomers }) => {
         </tbody>
       </Table>
 
-      <DeleteClientModal
+      <DeleteModal
         show={modalVisible}
         onClose={() => setModalVisible(false)}
         onConfirm={handleDelete}

@@ -10,6 +10,7 @@ import {
   updateCustomer,
 } from "../apiService/customer/apiCustomer";
 import { FormControl } from "react-bootstrap";
+import { extractZipCodeNumbers, formatZipCode } from "../helpers/helpers";
 
 const CustomerForm = ({ getCustomers }) => {
   const { id } = useParams();
@@ -42,11 +43,17 @@ const CustomerForm = ({ getCustomers }) => {
     const { name, value } = e.target;
     if (name.includes("address.")) {
       const addressKey = name.split(".")[1];
+      let newValue = value;
+
+      if (addressKey === "postcode") {
+        newValue = formatZipCode(value);
+      }
+
       setFormData((prevState) => ({
         ...prevState,
         address: {
           ...prevState.address,
-          [addressKey]: value,
+          [addressKey]: newValue,
         },
       }));
     } else {
@@ -56,8 +63,17 @@ const CustomerForm = ({ getCustomers }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    const postcode = extractZipCodeNumbers(formData.address.postcode);
+    const dataFormatted = {
+      ...formData,
+      address: {
+        ...formData.address,
+        postcode
+      }
+    }
     if (id) {
-      updateCustomer(id, formData)
+      updateCustomer(id, dataFormatted)
         .then(() => {
           navigate("/");
           getCustomers();
@@ -66,7 +82,7 @@ const CustomerForm = ({ getCustomers }) => {
           console.error(err);
         });
     } else {
-      addCustomer(formData)
+      addCustomer(dataFormatted)
         .then(() => {
           navigate("/");
           getCustomers();
@@ -80,7 +96,11 @@ const CustomerForm = ({ getCustomers }) => {
   return (
     <Form className="formContainer" onSubmit={handleSubmit}>
       <h1>{id ? "Edytuj klienta" : "Dodaj nowego klienta"}</h1>
-      <FloatingLabel controlId="floatingInput" label="Nazwa firmy" className="mb-3">
+      <FloatingLabel
+        controlId="floatingInput"
+        label="Nazwa firmy"
+        className="mb-3"
+      >
         <FormControl
           type="text"
           name="name"
@@ -100,7 +120,11 @@ const CustomerForm = ({ getCustomers }) => {
           required
         />
       </FloatingLabel>
-      <FloatingLabel controlId="floatingInput" label="Nr. lokalu" className="mb-3">
+      <FloatingLabel
+        controlId="floatingInput"
+        label="Nr. lokalu"
+        className="mb-3"
+      >
         <FormControl
           type="text"
           name="address.suite"

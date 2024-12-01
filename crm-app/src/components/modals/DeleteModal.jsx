@@ -1,9 +1,7 @@
 import { Button } from "react-bootstrap";
 import GenericModal from "./GenericModal";
 
-const DeleteClientModal = ({ show, onClose, onConfirm }) => {
-  const title = "Potwierdzenie usunięcia";
-  const body = "Czy na pewno chcesz usunąc tego klienta";
+const DeleteModal = ({ show, onClose, onConfirm }) => {
   const footer = (
     <>
       <Button variant="secondary" onClick={onClose}>
@@ -19,11 +17,11 @@ const DeleteClientModal = ({ show, onClose, onConfirm }) => {
     <GenericModal
       show={show}
       onClose={onClose}
-      title={title}
-      body={body}
+      title="Potwierdzenie usunięcia"
+      body="Czy na pewno chcesz usunąć?"
       footer={footer}
     />
   );
 };
 
-export default DeleteClientModal;
+export default DeleteModal;
