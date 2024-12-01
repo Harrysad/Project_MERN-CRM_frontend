@@ -10,7 +10,7 @@ export const SignUpSignIn = () => {
     password: "",
   });
 
-  const handleRegisterClick = (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
 
     const userData = {
@@ -19,6 +19,7 @@ export const SignUpSignIn = () => {
       password: newFormUser.password,
     };
 
+    //brakuje jeszcze dostosowania na logowanie/rejestrację
     try {
       addUser(userData);
 
@@ -33,9 +34,13 @@ export const SignUpSignIn = () => {
     }
   };
 
+  const handleRegisterClick = (e) => {
+    e.preventDefault();
+    setIsActive(true);
+  };
+
   const handleLoginClick = (e) => {
     e.preventDefault();
-
     setIsActive(false);
   };
 
@@ -59,10 +64,28 @@ export const SignUpSignIn = () => {
             </a>
           </div>
           <span>or use your email for registration</span>
-          <input type="text" placeholder="Name" />
-          <input type="email" placeholder="Email" />
-          <input type="password" placeholder="Password" />
-          <button>Sign Up</button>
+          <input
+            type="text"
+            value={newFormUser.name}
+            name="name"
+            placeholder="Name"
+            required
+          />
+          <input
+            type="email"
+            value={newFormUser.email}
+            name="email"
+            placeholder="Email"
+            required
+          />
+          <input 
+          type="password" 
+          value={newFormUser.password}
+            name="password"
+          placeholder="Password" 
+          required
+          />
+          <button onClick={handleSubmit}>Sign Up</button>
         </form>
       </div>
       <div className="form-container sign-in">
@@ -86,7 +109,7 @@ export const SignUpSignIn = () => {
           <input type="email" placeholder="Email" />
           <input type="password" placeholder="Password" />
           <a href="#">Forget Your Password?</a>
-          <button>Sign In</button>
+          <button onClick={handleSubmit}>Sign In</button>
         </form>
       </div>
       <div className="toggle-container">
