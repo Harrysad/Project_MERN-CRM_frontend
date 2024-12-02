@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, NavLink } from "react-router-dom";
 
 import FloatingLabel from "react-bootstrap/FloatingLabel";
-import { Form } from "react-bootstrap";
+import { Form, Button } from "react-bootstrap";
 
 import {
   addCustomer,
@@ -31,7 +31,8 @@ const CustomerForm = ({ getCustomers }) => {
     if (id) {
       getCustomer(id)
         .then((customer) => {
-          setFormData(customer);
+          const formattedAddress = { ...customer.address, postcode: formatZipCode(customer.address.postcode)}
+          setFormData({...customer, address: formattedAddress});
         })
         .catch((err) => {
           console.error(err);
@@ -169,7 +170,9 @@ const CustomerForm = ({ getCustomers }) => {
         />
       </FloatingLabel>
 
-      <button type="submit">{id ? "Zapisz zmiany" : "Dodaj klienta"}</button>
+      <Button variant="success" type="submit">{id ? "Zapisz zmiany" : "Dodaj klienta"}</Button>
+      <NavLink to="/" className="btn btn-danger">Anuluj</NavLink>
+
     </Form>
   );
 };

@@ -1,14 +1,25 @@
 import { useState } from "react";
 import "./SignUpSignIn.css";
-import { addUser } from "../apiService/user/apiUser";
+import { addUser, logInUser } from "../apiService/user/apiUser";
+import { useNavigate } from "react-router-dom";
 
 export const SignUpSignIn = () => {
   const [isActive, setIsActive] = useState(false);
+  const navigate = useNavigate();
   const [newFormUser, setNewFormUser] = useState({
     name: "",
     email: "",
     password: "",
   });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    setNewFormUser((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -19,18 +30,27 @@ export const SignUpSignIn = () => {
       password: newFormUser.password,
     };
 
-    //brakuje jeszcze dostosowania na logowanie/rejestrację
-    try {
-      addUser(userData);
-
-      setNewFormUser({
-        name: "",
-        email: "",
-        password: "",
-      });
-      setIsActive(true);
-    } catch (err) {
-      console.error(err);
+    if (isActive) {
+      addUser(userData)
+        .then(() => {
+          setNewFormUser({
+            name: "",
+            email: "",
+            password: "",
+          });
+          setIsActive(true);
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+    } else {
+      logInUser({ email: newFormUser.email, password: newFormUser.password })
+        .then(() => {
+          navigate("/");
+        })
+        .catch((err) => {
+          console.error(err);
+        });
     }
   };
 
@@ -47,7 +67,7 @@ export const SignUpSignIn = () => {
   return (
     <div className={`container${isActive ? " active" : ""}`} id="container">
       <div className="form-container sign-up">
-        <form>
+        <form onSubmit={handleSubmit}>
           <h1>Create Account</h1>
           <div className="social-icons">
             <a href="#" className="icon">
@@ -66,30 +86,40 @@ export const SignUpSignIn = () => {
           <span>or use your email for registration</span>
           <input
             type="text"
-            value={newFormUser.name}
             name="name"
+            value={newFormUser.name}
+            onChange={handleChange}
             placeholder="Name"
             required
           />
           <input
             type="email"
-            value={newFormUser.email}
             name="email"
+            value={newFormUser.email}
+            onChange={handleChange}
             placeholder="Email"
             required
           />
-          <input 
-          type="password" 
-          value={newFormUser.password}
+          <input
+            type="password"
             name="password"
-          placeholder="Password" 
-          required
+            value={newFormUser.password}
+            onChange={handleChange}
+            placeholder="Password"
+            required
           />
-          <button onClick={handleSubmit}>Sign Up</button>
+          {/* <input
+            type="password"
+            value={newFormUser.password}
+            name="password"
+            placeholder="Repeat password"
+            required
+          /> */}
+          <button>Sign Up</button>
         </form>
       </div>
       <div className="form-container sign-in">
-        <form>
+        <form onSubmit={handleSubmit}>
           <h1>Sign In</h1>
           <div className="social-icons">
             <a href="#" className="icon">
@@ -106,10 +136,22 @@ export const SignUpSignIn = () => {
             </a>
           </div>
           <span>or use your email password</span>
-          <input type="email" placeholder="Email" />
-          <input type="password" placeholder="Password" />
+          <input
+            type="email"
+            name="email"
+            value={newFormUser.email}
+            onChange={handleChange}
+            placeholder="Email"
+          />
+          <input
+            type="password"
+            name="password"
+            value={newFormUser.password}
+            onChange={handleChange}
+            placeholder="Password"
+          />
           <a href="#">Forget Your Password?</a>
-          <button onClick={handleSubmit}>Sign In</button>
+          <button>Sign In</button>
         </form>
       </div>
       <div className="toggle-container">

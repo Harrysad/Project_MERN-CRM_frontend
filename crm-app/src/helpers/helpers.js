@@ -1,7 +1,7 @@
 export const formatZipCode = (code) => {
   const digitOnly = code.replace(/\D/g, "");
 
-  if (digitOnly.length === 0) return "";
+  if (!digitOnly.length) return "";
 
   if (digitOnly.length <= 2) return digitOnly;
 
