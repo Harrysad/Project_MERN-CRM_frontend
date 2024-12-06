@@ -1,11 +1,33 @@
 import Table from "react-bootstrap/Table";
-import { deleteAction } from "../apiService/action/apiActions";
-import { useState } from "react";
+import { deleteAction, updateAction } from "../apiService/action/apiActions";
+import { useEffect, useState } from "react";
 import DeleteModal from "./modals/DeleteModal";
+import ActionFormEditModal from "./modals/ActionFormEditModal";
 
-const ActionList = ({ actions, onActionDelete }) => {
+const ActionList = ({ actions, onActionDelete, onEditAction }) => {
   const [modalVisible, setModalVisible] = useState(false);
+  const [modalEditVisible, setModalEditVisible] = useState(false);
   const [selectedActionId, setSelectedActionId] = useState();
+  const [editAction, setEditAction] = useState({
+    type: "",
+    description: "",
+    date: "",
+  });
+
+  useEffect(() => {
+    if (selectedActionId) {
+      const actionToEdit = actions.find(
+        (action) => action._id === selectedActionId
+      );
+      if (actionToEdit) {
+        setEditAction({
+          type: actionToEdit.type,
+          description: actionToEdit.description,
+          date: actionToEdit.date,
+        });
+      }
+    }
+  }, [selectedActionId, actions]);
 
   const handleDelete = () => {
     if (selectedActionId) {
@@ -26,6 +48,31 @@ const ActionList = ({ actions, onActionDelete }) => {
         });
     }
   };
+
+  const handleEditChange = (e) => {
+    const { name, value } = e.target;
+    setEditAction((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = () => {
+    updateAction(selectedActionId, editAction)
+      .then(() => {
+        setModalEditVisible(false);
+        onEditAction();
+      })
+      .catch((err) => {
+        console.error(err);
+      })
+      .finally(() => {
+        setModalEditVisible(false);
+        onEditAction();
+      });
+  };
+
+  console.log(editAction);
 
   return (
     <>
@@ -50,7 +97,8 @@ const ActionList = ({ actions, onActionDelete }) => {
                 <td>
                   <button
                     onClick={() => {
-                      console.log("Próba edycji");
+                      setSelectedActionId(row._id);
+                      setModalEditVisible(true);
                     }}
                     className="btn btn-secondary"
                   >
@@ -76,6 +124,15 @@ const ActionList = ({ actions, onActionDelete }) => {
         show={modalVisible}
         onClose={() => setModalVisible(false)}
         onConfirm={handleDelete}
+      />
+
+      <ActionFormEditModal
+        show={modalEditVisible}
+        onClose={() => setModalEditVisible(false)}
+        onChange={handleEditChange}
+        value={editAction}
+        onConfirm={handleSubmit}
+        actionId={selectedActionId}
       />
     </>
   );

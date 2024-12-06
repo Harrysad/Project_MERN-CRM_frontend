@@ -5,6 +5,7 @@ const api = axios.create({
   baseURL: config.api.url + "/actions",
   headers: {
     "Content-Type": "application/json",
+    "Authorization": JSON.parse(localStorage.getItem('user')).jwt
   },
 });
 

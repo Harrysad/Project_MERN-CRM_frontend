@@ -10,7 +10,11 @@ import {
   updateCustomer,
 } from "../apiService/customer/apiCustomer";
 import { FormControl } from "react-bootstrap";
-import { extractZipCodeNumbers, formatZipCode } from "../helpers/helpers";
+import {
+  extractCodeNumbers,
+  formatNipCode,
+  formatZipCode,
+} from "../helpers/helpers";
 
 const CustomerForm = ({ getCustomers }) => {
   const { id } = useParams();
@@ -31,8 +35,16 @@ const CustomerForm = ({ getCustomers }) => {
     if (id) {
       getCustomer(id)
         .then((customer) => {
-          const formattedAddress = { ...customer.address, postcode: formatZipCode(customer.address.postcode)}
-          setFormData({...customer, address: formattedAddress});
+          const formattedAddress = {
+            ...customer.address,
+            postcode: formatZipCode(customer.address.postcode),
+          };
+          const formattedNip = formatNipCode(customer.nip);
+          setFormData({
+            ...customer,
+            address: formattedAddress,
+            nip: formattedNip,
+          });
         })
         .catch((err) => {
           console.error(err);
@@ -57,6 +69,12 @@ const CustomerForm = ({ getCustomers }) => {
           [addressKey]: newValue,
         },
       }));
+    } else if (name === "nip") {
+      const formattedNip = formatNipCode(value);
+      setFormData((prevState) => ({
+        ...prevState,
+        nip: formattedNip,
+      }));
     } else {
       setFormData({ ...formData, [name]: value });
     }
@@ -65,14 +83,18 @@ const CustomerForm = ({ getCustomers }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const postcode = extractZipCodeNumbers(formData.address.postcode);
+    const postcode = extractCodeNumbers(formData.address.postcode);
+    const nip = extractCodeNumbers(formData.nip);
     const dataFormatted = {
       ...formData,
       address: {
         ...formData.address,
-        postcode
-      }
-    }
+        postcode,
+      },
+      nip,
+    };
+    console.log("Kod pocztowy: ", postcode)
+    console.log("Nip: ", nip)
     if (id) {
       updateCustomer(id, dataFormatted)
         .then(() => {
@@ -170,9 +192,12 @@ const CustomerForm = ({ getCustomers }) => {
         />
       </FloatingLabel>
 
-      <Button variant="success" type="submit">{id ? "Zapisz zmiany" : "Dodaj klienta"}</Button>
-      <NavLink to="/" className="btn btn-danger">Anuluj</NavLink>
-
+      <Button variant="success" type="submit">
+        {id ? "Zapisz zmiany" : "Dodaj klienta"}
+      </Button>
+      <NavLink to="/" className="btn btn-danger">
+        Anuluj
+      </NavLink>
     </Form>
   );
 };

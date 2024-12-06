@@ -7,8 +7,14 @@ import CustomerDetails from "./components/CustomerDetails";
 import CustomerForm from "./components/CustomerForm";
 import CustomerList from "./components/CustomerList";
 import { SignUpSignIn } from "./components/SignUpSignIn";
+import axios from "axios";
 
 function App() {
+  const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')))
+
+  axios.defaults.headers.common['Authorization'] = user.jwt;
+
+  // console.log(user.jwt)
   const [customers, setCustomers] = useState([]);
 
   useEffect(() => {

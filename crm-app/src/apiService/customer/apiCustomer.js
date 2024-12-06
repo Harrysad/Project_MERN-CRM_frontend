@@ -6,8 +6,10 @@ const api = axios.create({
   baseURL: config.api.url + '/customers', // Podstawowy URL API
   headers: {
     "Content-Type": "application/json",
+    "Authorization": JSON.parse(localStorage.getItem('user')).jwt
   },
 });
+
 
 export const getCustomers = async () => {
   try {

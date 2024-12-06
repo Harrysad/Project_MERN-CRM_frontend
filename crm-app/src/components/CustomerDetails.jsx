@@ -7,6 +7,8 @@ import { addAction } from "../apiService/action/apiActions";
 import { Button } from "react-bootstrap";
 import ActionFormModal from "./modals/ActionFormModal";
 
+import { formatNipCode, formatZipCode } from "../helpers/helpers";
+
 function CustomerDetails() {
   const { id } = useParams();
   const [customer, setCustomer] = useState();
@@ -20,7 +22,16 @@ function CustomerDetails() {
   const getCustomerData = () => {
     getCustomer(id)
       .then((customer) => {
-        setCustomer(customer);
+        const formattedAddress = {
+          ...customer.address,
+          postcode: formatZipCode(customer.address.postcode),
+        };
+        const formattedNip = formatNipCode(customer.nip);
+        setCustomer({
+          ...customer,
+          address: formattedAddress,
+          nip: formattedNip,
+        });
       })
       .catch((err) => {
         console.error(err);
@@ -31,7 +42,7 @@ function CustomerDetails() {
     getCustomerData();
   }, [id]);
 
-  const handleAction = (e) => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
     setNewAction((prev) => ({
       ...prev,
@@ -77,6 +88,7 @@ function CustomerDetails() {
           <ActionList
             actions={customer.actions}
             onActionDelete={getCustomerData}
+            onEditAction={getCustomerData}
           />
         ) : (
           <p>Brak akcji dla tego klienta</p>
@@ -86,7 +98,7 @@ function CustomerDetails() {
       <ActionFormModal
         show={modalVisible}
         onClose={() => setModalVisible(false)}
-        onChange={handleAction}
+        onChange={handleChange}
         value={newAction}
         onConfirm={handleSubmit}
         customerName={customer?.name}

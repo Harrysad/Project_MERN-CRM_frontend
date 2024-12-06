@@ -45,7 +45,8 @@ export const SignUpSignIn = () => {
         });
     } else {
       logInUser({ email: newFormUser.email, password: newFormUser.password })
-        .then(() => {
+        .then((user) => {
+          localStorage.setItem('user', JSON.stringify(user));
           navigate("/");
         })
         .catch((err) => {
