@@ -5,9 +5,19 @@ const api = axios.create({
   baseURL: config.api.url + "/actions",
   headers: {
     "Content-Type": "application/json",
-    "Authorization": JSON.parse(localStorage.getItem('user')).jwt
+    Authorization: JSON.parse(localStorage.getItem("user"))?.jwt,
   },
 });
+
+export const getActions = async (payload) => {
+  try {
+    const response = await api.get("/index", payload);
+    return response.data;
+  } catch (error) {
+    console.error("Błąd podczas pobierania danych: ", error);
+    throw error;
+  }
+};
 
 export const addAction = async (payload) => {
   try {

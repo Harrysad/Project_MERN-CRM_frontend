@@ -89,6 +89,7 @@ function CustomerDetails() {
             actions={customer.actions}
             onActionDelete={getCustomerData}
             onEditAction={getCustomerData}
+            customerName={customer?.name}
           />
         ) : (
           <p>Brak akcji dla tego klienta</p>

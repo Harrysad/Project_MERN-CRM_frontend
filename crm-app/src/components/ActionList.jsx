@@ -2,16 +2,18 @@ import Table from "react-bootstrap/Table";
 import { deleteAction, updateAction } from "../apiService/action/apiActions";
 import { useEffect, useState } from "react";
 import DeleteModal from "./modals/DeleteModal";
-import ActionFormEditModal from "./modals/ActionFormEditModal";
+import ActionFormModal from "./modals/ActionFormModal";
 
-const ActionList = ({ actions, onActionDelete, onEditAction }) => {
+const ActionList = ({ actions, onActionDelete, onEditAction, customerName }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalEditVisible, setModalEditVisible] = useState(false);
   const [selectedActionId, setSelectedActionId] = useState();
   const [editAction, setEditAction] = useState({
+    _id: "",
     type: "",
     description: "",
     date: "",
+    customer: ""
   });
 
   useEffect(() => {
@@ -20,11 +22,7 @@ const ActionList = ({ actions, onActionDelete, onEditAction }) => {
         (action) => action._id === selectedActionId
       );
       if (actionToEdit) {
-        setEditAction({
-          type: actionToEdit.type,
-          description: actionToEdit.description,
-          date: actionToEdit.date,
-        });
+        setEditAction(actionToEdit);
       }
     }
   }, [selectedActionId, actions]);
@@ -72,8 +70,6 @@ const ActionList = ({ actions, onActionDelete, onEditAction }) => {
       });
   };
 
-  console.log(editAction);
-
   return (
     <>
       <Table striped bordered hover variant="dark">
@@ -93,7 +89,7 @@ const ActionList = ({ actions, onActionDelete, onEditAction }) => {
                 <td>{index + 1}</td>
                 <td>{row.type}</td>
                 <td>{row.description}</td>
-                <td>{row.date}</td>
+                <td>{row.date.slice(0, 10)}</td>
                 <td>
                   <button
                     onClick={() => {
@@ -126,13 +122,14 @@ const ActionList = ({ actions, onActionDelete, onEditAction }) => {
         onConfirm={handleDelete}
       />
 
-      <ActionFormEditModal
+      <ActionFormModal
         show={modalEditVisible}
         onClose={() => setModalEditVisible(false)}
         onChange={handleEditChange}
         value={editAction}
         onConfirm={handleSubmit}
-        actionId={selectedActionId}
+        customerName={customerName}
+        formMode="edit"
       />
     </>
   );

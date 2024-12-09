@@ -3,7 +3,7 @@ import "./SignUpSignIn.css";
 import { addUser, logInUser } from "../apiService/user/apiUser";
 import { useNavigate } from "react-router-dom";
 
-export const SignUpSignIn = () => {
+export const SignUpSignIn = ({setUser}) => {
   const [isActive, setIsActive] = useState(false);
   const navigate = useNavigate();
   const [newFormUser, setNewFormUser] = useState({
@@ -47,7 +47,9 @@ export const SignUpSignIn = () => {
       logInUser({ email: newFormUser.email, password: newFormUser.password })
         .then((user) => {
           localStorage.setItem('user', JSON.stringify(user));
+          setUser(user)
           navigate("/");
+          
         })
         .catch((err) => {
           console.error(err);

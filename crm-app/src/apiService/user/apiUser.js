@@ -28,3 +28,13 @@ export const logInUser = async (payload) => {
       throw error;
     }
 }
+
+export const logOutUser = async (payload) => {
+  try {
+    const response = await api.post('logout', payload)
+    return response.data
+  } catch (error) {
+    console.error("Błąd podczas pobierania danych:", error);
+      throw error;
+  }
+}

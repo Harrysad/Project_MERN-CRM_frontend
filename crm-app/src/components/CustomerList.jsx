@@ -2,7 +2,7 @@ import { useState } from "react";
 import { deleteCustomer } from "../apiService/customer/apiCustomer";
 import { NavLink } from "react-router-dom";
 import Table from "react-bootstrap/Table";
-import { formatZipCode } from "../helpers/helpers";
+import { formatZipCode, formatNipCode } from "../helpers/helpers";
 import DeleteModal from "./modals/DeleteModal";
 
 const CustomerList = ({ customers, handleGetCustomers }) => {
@@ -53,7 +53,7 @@ const CustomerList = ({ customers, handleGetCustomers }) => {
                   <br />
                   {row.address.street} {row.address.suite}
                 </td>
-                <td>{row.nip}</td>
+                <td>{formatNipCode(row.nip)}</td>
                 <td>
                   {showMore ? (
                     <>
