@@ -23,7 +23,6 @@ export const SignUpSignIn = ({setUser}) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
     const userData = {
       name: newFormUser.name,
       email: newFormUser.email,

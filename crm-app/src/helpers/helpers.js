@@ -24,13 +24,3 @@ export const formatNipCode = (code) => {
   return `${digitOnly.slice(0,3)}-${digitOnly.slice(3, 6)}-${digitOnly.slice(6, 8)}-${digitOnly.slice(8, 10)}`
   
 }
-
-export const formatDate = (date) => {
-  const formattedDate = new Date(date)
-
-  if(isNaN(formattedDate.getTime())) {
-    throw new Error("Invalid date input")
-  }
-
-  return formattedDate.toISOString();
-}

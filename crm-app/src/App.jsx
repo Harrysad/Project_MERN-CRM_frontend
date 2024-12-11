@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Route, Routes, Navigate } from "react-router-dom";
+import { Route, Routes, Navigate, useNavigate } from "react-router-dom";
 import "./App.css";
 
 import { getCustomers } from "./apiService/customer/apiCustomer";
@@ -8,7 +8,7 @@ import CustomerForm from "./components/CustomerForm";
 import CustomerList from "./components/CustomerList";
 import { SignUpSignIn } from "./components/SignUpSignIn";
 import axios from "axios";
-import { logOutUser } from "./apiService/user/apiUser";
+import Pagination from "./components/Pagination";
 
 const ProtectedRoute = ({ user, children }) => {
   if (!user) {
@@ -20,15 +20,14 @@ const ProtectedRoute = ({ user, children }) => {
 
 function App() {
   const [user, setUser] = useState(JSON.parse(localStorage.getItem("user")));
+  const navigate = useNavigate();
 
   axios.defaults.headers.common["Authorization"] = user?.jwt;
 
   // console.log(user.jwt)
   const [customers, setCustomers] = useState([]);
-
-  useEffect(() => {
-    handleGetCustomers();
-  }, []);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [customersPerPage] = useState(3);
 
   const handleGetCustomers = () => {
     getCustomers().then((customersList) => {
@@ -36,16 +35,26 @@ function App() {
     });
   };
 
-  const handleLogOut = () => {
-    logOutUser()
-    .then(() => {
-      setUser(null)
-      localStorage.removeItem("user")
-    })
-    .catch((err) => {
-      console.error(err)
-    })
-  }
+  useEffect(() => {
+    handleGetCustomers();
+  }, []);
+
+  const handleLogOut = (e) => {
+    e.preventDefault();
+
+    setUser(null);
+    localStorage.removeItem("user");
+    navigate("/Home");
+  };
+
+  const indexOfLastCustomer = currentPage * customersPerPage;
+  const indexOfFirstCustomer = indexOfLastCustomer - customersPerPage;
+  const currentCustomers = customers.slice(
+    indexOfFirstCustomer,
+    indexOfLastCustomer
+  );
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
     <>
@@ -86,6 +95,7 @@ function App() {
                 <div className="offcanvas-body">
                   <ul className="navbar-nav justify-content-end flex-grow-1 pe-3">
                     <li className="nav-item">
+                      {/* każde a zamienić na <Link>*/}
                       <a
                         className="nav-link active"
                         aria-current="page"
@@ -100,7 +110,11 @@ function App() {
                       </a>
                     </li>
                     <li className="nav-item">
-                      <a className="nav-link" href="/Home" onClick={handleLogOut}>
+                      <a
+                        className="nav-link"
+                        href="/Home"
+                        onClick={handleLogOut}
+                      >
                         Log out
                       </a>
                     </li>
@@ -116,8 +130,13 @@ function App() {
             path="/"
             element={
               <ProtectedRoute user={user}>
+                <Pagination
+                  customersPerPage={customersPerPage}
+                  totalCustomers={customers.length}
+                  paginate={paginate}
+                />
                 <CustomerList
-                  customers={customers}
+                  customers={currentCustomers}
                   handleGetCustomers={handleGetCustomers}
                 />
               </ProtectedRoute>
