@@ -11,9 +11,9 @@ const api = axios.create({
 });
 
 
-export const getCustomers = async () => {
+export const getCustomers = async (page, limit) => {
   try {
-    const response = await api.get("/"); //Tu dodać dwa parametry ?page
+    const response = await api.get(`/?page=${page}&limit=${limit}`); //Tu dodać dwa parametry ?page
     return response.data;
   } catch (error) {
     console.error("Błąd podczas pobierania danych:", error);

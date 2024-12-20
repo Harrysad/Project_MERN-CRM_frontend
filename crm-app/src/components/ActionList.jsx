@@ -1,20 +1,52 @@
 import Table from "react-bootstrap/Table";
-import { deleteAction, updateAction } from "../apiService/action/apiActions";
+import {
+  deleteAction,
+  getActions,
+  updateAction,
+} from "../apiService/action/apiActions";
 import { useEffect, useState } from "react";
 import DeleteModal from "./modals/DeleteModal";
 import ActionFormModal from "./modals/ActionFormModal";
+import Pagination from "./Pagination";
 
-const ActionList = ({ actions, onActionDelete, onEditAction, customerName }) => {
+const ACTION_DATA_LIMIT = 8;
+
+const ActionList = ({
+  actions,
+  onActionDelete,
+  onEditAction,
+  customerName,
+}) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalEditVisible, setModalEditVisible] = useState(false);
-  const [selectedActionId, setSelectedActionId] = useState();
+  const [selectedActionId, setSelectedActionId] = useState(null);
   const [editAction, setEditAction] = useState({
     _id: "",
     type: "",
     description: "",
     date: "",
-    customer: ""
+    customer: "",
   });
+
+  const [allActions, setAllActions] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalActions, setTotalActions] = useState(0);
+
+  const customerId = actions.length > 0 ? actions[0].customer : null;
+
+  const handleGetActions = (page = currentPage, limit = ACTION_DATA_LIMIT) => {
+    getActions(customerId, page, limit).then((res) => {
+      setAllActions(res?.data);
+      setTotalActions(res?.totalActions);
+      setCurrentPage(res?.page);
+    });
+  };
+
+  useEffect(() => {
+    if (customerId) {
+      handleGetActions(currentPage, ACTION_DATA_LIMIT);
+    }
+  }, [customerId, currentPage]);
 
   useEffect(() => {
     if (selectedActionId) {
@@ -32,6 +64,7 @@ const ActionList = ({ actions, onActionDelete, onEditAction, customerName }) => 
       deleteAction(selectedActionId)
         .then((res) => {
           if (res.data) {
+            console.log(res.data);
             setModalVisible(false);
             onActionDelete();
           }
@@ -83,7 +116,7 @@ const ActionList = ({ actions, onActionDelete, onEditAction, customerName }) => 
           </tr>
         </thead>
         <tbody>
-          {actions.map((row, index) => {
+          {allActions.map((row, index) => {
             return (
               <tr key={row._id}>
                 <td>{index + 1}</td>
@@ -125,11 +158,17 @@ const ActionList = ({ actions, onActionDelete, onEditAction, customerName }) => 
       <ActionFormModal
         show={modalEditVisible}
         onClose={() => setModalEditVisible(false)}
-        onChange={handleEditChange}
+        handleChange={handleEditChange}
         value={editAction}
         onConfirm={handleSubmit}
         customerName={customerName}
         formMode="edit"
+      />
+      <Pagination
+        dataPerPage={ACTION_DATA_LIMIT}
+        totalData={totalActions}
+        currentPage={currentPage}
+        paginate={(page) => handleGetActions(page)}
       />
     </>
   );

@@ -7,7 +7,7 @@ import { useState } from "react";
 const ActionFormModal = ({
   show,
   onClose,
-  onChange,
+  handleChange,
   value,
   onConfirm,
   customerName,
@@ -15,9 +15,10 @@ const ActionFormModal = ({
 }) => {
   const [error, setError] = useState("");
 
-  const title = formMode === "edit"
-  ? `Edycja akcji dla ${customerName}`
-  : `Dodawanie nowej akcji dla ${customerName}`;
+  const title =
+    formMode === "edit"
+      ? `Edycja akcji dla ${customerName}`
+      : `Dodawanie nowej akcji dla ${customerName}`;
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -27,7 +28,15 @@ const ActionFormModal = ({
     }
     setError("");
     onConfirm();
+
   };
+
+  const actionTypes = [
+    {value: "Telefon", label: "Telefon"},
+    {value: "Spotkanie", label: "Spotkanie"},
+    {value: "Mail", label: "Mail"},
+    {value: "Wideo rozmowa", label: "Wideo rozmowa"},
+  ];
 
   const body = (
     <>
@@ -38,25 +47,32 @@ const ActionFormModal = ({
       )}
       <Form>
         <FloatingLabel
-          controlId="floatingInput"
+          controlId="floatingSelect"
           label="Typ akcji"
           className="mb-3"
         >
           <FormControl
-            type="text"
+            as="select"
             name="type"
             value={value.type}
-            onChange={onChange}
+            onChange={handleChange}
             placeholder="Typ akcji"
             required
-          />
+          >
+            <option value="">Wybierz typ akcji</option>
+            {actionTypes.map((action) => (
+              <option key={action.value} value={action.value}>
+                {action.label}
+              </option>
+            ))}
+            </FormControl>
         </FloatingLabel>
         <FloatingLabel controlId="floatingInput" label="Opis" className="mb-3">
           <FormControl
             type="text"
             name="description"
             value={value.description}
-            onChange={onChange}
+            onChange={handleChange}
             placeholder="Typ akcji"
             required
           />
@@ -66,7 +82,7 @@ const ActionFormModal = ({
             type="date"
             name="date"
             value={value.date.slice(0, 10)}
-            onChange={onChange}
+            onChange={handleChange}
             placeholder="Data"
             required
           />
@@ -80,7 +96,7 @@ const ActionFormModal = ({
         Anuluj
       </Button>
       <Button variant="success" onClick={handleSubmit}>
-      {formMode === "edit" ? "Zapisz zmiany" : "Dodaj"}
+        {formMode === "edit" ? "Zapisz zmiany" : "Dodaj"}
       </Button>
     </>
   );

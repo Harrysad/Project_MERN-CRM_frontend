@@ -19,6 +19,7 @@ import {
 const CustomerForm = ({ getCustomers }) => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [error, setError] = useState("");
 
   const [formData, setFormData] = useState({
     name: "",
@@ -53,6 +54,7 @@ const CustomerForm = ({ getCustomers }) => {
   }, [id]);
 
   const handleChange = (e) => {
+    setError("");
     const { name, value } = e.target;
     if (name.includes("address.")) {
       const addressKey = name.split(".")[1];
@@ -93,8 +95,7 @@ const CustomerForm = ({ getCustomers }) => {
       },
       nip,
     };
-    console.log("Kod pocztowy: ", postcode)
-    console.log("Nip: ", nip)
+
     if (id) {
       updateCustomer(id, dataFormatted)
         .then(() => {
@@ -102,7 +103,11 @@ const CustomerForm = ({ getCustomers }) => {
           getCustomers();
         })
         .catch((err) => {
-          console.error(err);
+          if (err.response && err.response.status === 500) {
+            setError("Podany NIP już istnieje w bazie");
+          } else {
+            console.error(err);
+          }
         });
     } else {
       addCustomer(dataFormatted)
@@ -111,7 +116,11 @@ const CustomerForm = ({ getCustomers }) => {
           getCustomers();
         })
         .catch((err) => {
-          console.error(err);
+          if (err.response && err.response.status === 409) {
+            setError("Podany NIP już istnieje w bazie");
+          } else {
+            console.error(err);
+          }
         });
     }
   };
@@ -119,6 +128,7 @@ const CustomerForm = ({ getCustomers }) => {
   return (
     <Form className="formContainer" onSubmit={handleSubmit}>
       <h1>{id ? "Edytuj klienta" : "Dodaj nowego klienta"}</h1>
+      {error && <div className="alert alert-danger">{error}</div>}
       <FloatingLabel
         controlId="floatingInput"
         label="Nazwa firmy"

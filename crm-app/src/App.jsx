@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Route, Routes, Navigate, useNavigate } from "react-router-dom";
+import { Route, Routes, Navigate, useNavigate, Link } from "react-router-dom";
 import "./App.css";
 
 import { getCustomers } from "./apiService/customer/apiCustomer";
@@ -18,20 +18,35 @@ const ProtectedRoute = ({ user, children }) => {
   return children;
 };
 
+const CUSTOMER_DATA_LIMIT = 10;
+
 function App() {
   const [user, setUser] = useState(JSON.parse(localStorage.getItem("user")));
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user) {
+      document.body.classList.add("logged-in");
+    } else {
+      document.body.classList.remove("logged-in");
+    }
+  }, [user]);
 
   axios.defaults.headers.common["Authorization"] = user?.jwt;
 
   // console.log(user.jwt)
   const [customers, setCustomers] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [customersPerPage] = useState(3);
+  const [totalCustomers, setTotalCustomers] = useState(0);
 
-  const handleGetCustomers = () => {
-    getCustomers().then((customersList) => {
-      setCustomers(customersList);
+  const handleGetCustomers = (
+    page = currentPage,
+    limit = CUSTOMER_DATA_LIMIT
+  ) => {
+    getCustomers(page, limit).then((res) => {
+      setCustomers(res.data);
+      setTotalCustomers(res.total);
+      setCurrentPage(res.page);
     });
   };
 
@@ -47,24 +62,15 @@ function App() {
     navigate("/Home");
   };
 
-  const indexOfLastCustomer = currentPage * customersPerPage;
-  const indexOfFirstCustomer = indexOfLastCustomer - customersPerPage;
-  const currentCustomers = customers.slice(
-    indexOfFirstCustomer,
-    indexOfLastCustomer
-  );
-
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
-
   return (
     <>
       <div className="App">
         {user && (
-          <nav className="navbar navbar-dark bg-dark fixed-top">
+          <nav className="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
             <div className="container-fluid">
-              <a className="navbar-brand" href="/">
+              <Link className="navbar-brand" to="/">
                 Customers Relationship Management
-              </a>
+              </Link>
               <button
                 className="navbar-toggler"
                 type="button"
@@ -95,28 +101,37 @@ function App() {
                 <div className="offcanvas-body">
                   <ul className="navbar-nav justify-content-end flex-grow-1 pe-3">
                     <li className="nav-item">
-                      {/* każde a zamienić na <Link>*/}
-                      <a
-                        className="nav-link active"
-                        aria-current="page"
-                        href="/"
+                      <Link
+                        className="nav-link"
+                        to="/"
+                        onClick={() => {
+                          document.body.style = "";
+                          document.nav.style = "";
+                        }}
                       >
                         Customer List
-                      </a>
+                      </Link>
                     </li>
                     <li className="nav-item">
-                      <a className="nav-link" href="/customers/add">
-                        Add new customer
-                      </a>
-                    </li>
-                    <li className="nav-item">
-                      <a
+                      <Link
                         className="nav-link"
-                        href="/Home"
+                        to="/customers/add"
+                        onClick={() => {
+                          document.body.style = "";
+                          document.nav.style = "";
+                        }}
+                      >
+                        Add new customer
+                      </Link>
+                    </li>
+                    <li className="nav-item">
+                      <Link
+                        className="nav-link"
+                        to="/Home"
                         onClick={handleLogOut}
                       >
                         Log out
-                      </a>
+                      </Link>
                     </li>
                   </ul>
                 </div>
@@ -124,49 +139,52 @@ function App() {
             </div>
           </nav>
         )}
-        <Routes>
-          <Route path="/Home" element={<SignUpSignIn setUser={setUser} />} />
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute user={user}>
-                <Pagination
-                  customersPerPage={customersPerPage}
-                  totalCustomers={customers.length}
-                  paginate={paginate}
-                />
-                <CustomerList
-                  customers={currentCustomers}
-                  handleGetCustomers={handleGetCustomers}
-                />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/customers/add"
-            element={
-              <ProtectedRoute user={user}>
-                <CustomerForm getCustomers={handleGetCustomers} />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/customers/edit/:id"
-            element={
-              <ProtectedRoute user={user}>
-                <CustomerForm getCustomers={handleGetCustomers} />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/customers/:id"
-            element={
-              <ProtectedRoute user={user}>
-                <CustomerDetails />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
+        <div className="main-content">
+          <Routes>
+            <Route path="/Home" element={<SignUpSignIn setUser={setUser} />} />
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute user={user}>
+                  <CustomerList
+                    customers={customers}
+                    handleGetCustomers={handleGetCustomers}
+                  />
+                  <Pagination
+                    dataPerPage={CUSTOMER_DATA_LIMIT}
+                    totalData={totalCustomers}
+                    currentPage={currentPage}
+                    paginate={(page) => handleGetCustomers(page)}
+                  />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/customers/add"
+              element={
+                <ProtectedRoute user={user}>
+                  <CustomerForm getCustomers={handleGetCustomers} />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/customers/edit/:id"
+              element={
+                <ProtectedRoute user={user}>
+                  <CustomerForm getCustomers={handleGetCustomers} />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/customers/:id"
+              element={
+                <ProtectedRoute user={user}>
+                  <CustomerDetails />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </div>
       </div>
     </>
   );

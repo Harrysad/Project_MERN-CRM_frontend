@@ -1,18 +1,14 @@
-import { useState } from "react";
-
-function Pagination({ customersPerPage, totalCustomers, paginate }) {
+function Pagination({
+  dataPerPage,
+  totalData,
+  currentPage,
+  paginate,
+}) {
   const pageNumbers = [];
 
-  for (let i = 1; i <= Math.ceil(totalCustomers / customersPerPage); i++) {
+  for (let i = 1; i <= Math.ceil(totalData / dataPerPage); i++) {
     pageNumbers.push(i);
   }
-
-  const [activePage, setActivePage] = useState(1);
-
-  const handlePageClick = (number) => {
-    setActivePage(number);
-    paginate(number);
-  };
 
   return (
     <nav>
@@ -20,11 +16,11 @@ function Pagination({ customersPerPage, totalCustomers, paginate }) {
         {pageNumbers.map((number) => (
           <li
             key={number}
-            className={`page-item ${activePage === number ? "active" : ""}`}
+            
+            className={`page-item ${currentPage === number ? "active" : ""}`}
           >
             <a
               onClick={() => {
-                handlePageClick(number);
                 paginate(number);
               }}
             >

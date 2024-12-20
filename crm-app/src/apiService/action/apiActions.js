@@ -9,9 +9,9 @@ const api = axios.create({
   },
 });
 
-export const getActions = async (payload) => {
+export const getActions = async (customerId, page, limit) => {
   try {
-    const response = await api.get("/index", payload);
+    const response = await api.get(`/${customerId}?page=${page}&limit=${limit}`);
     return response.data;
   } catch (error) {
     console.error("Błąd podczas pobierania danych: ", error);

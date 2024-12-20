@@ -14,18 +14,15 @@ const CustomerList = ({ customers, handleGetCustomers }) => {
     if (selectedCustomerId) {
       deleteCustomer(selectedCustomerId)
         .then((res) => {
-          if (res.data.deleted) {
+          if (res.deleted) {
             handleGetCustomers();
             setShowMore(false);
+            setModalVisible(false);
+            setSelectedCustomerId(false);
           }
         })
         .catch((err) => {
           console.error(err);
-        })
-        .finally(() => {
-          setModalVisible(false);
-          setSelectedCustomerId(false);
-          handleGetCustomers();
         });
     }
   };

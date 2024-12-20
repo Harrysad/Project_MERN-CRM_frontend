@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, NavLink } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 
 import { getCustomer } from "../apiService/customer/apiCustomer";
 import ActionList from "./ActionList";
@@ -9,15 +9,17 @@ import ActionFormModal from "./modals/ActionFormModal";
 
 import { formatNipCode, formatZipCode } from "../helpers/helpers";
 
+const ACTION_INIT_FORM_DATA = {
+  type: "",
+  description: "",
+  date: "",
+}
+
 function CustomerDetails() {
   const { id } = useParams();
   const [customer, setCustomer] = useState();
   const [modalVisible, setModalVisible] = useState(false);
-  const [newAction, setNewAction] = useState({
-    type: "",
-    description: "",
-    date: "",
-  });
+  const [newAction, setNewAction] = useState(ACTION_INIT_FORM_DATA);
 
   const getCustomerData = () => {
     getCustomer(id)
@@ -50,6 +52,10 @@ function CustomerDetails() {
     }));
   };
 
+  const resetForm = () => (
+    setNewAction(ACTION_INIT_FORM_DATA)
+  )
+
   const handleSubmit = () => {
     addAction({
       ...newAction,
@@ -58,6 +64,7 @@ function CustomerDetails() {
       .then(() => {
         getCustomerData();
         setModalVisible(false);
+        resetForm();
       })
       .catch((err) => {
         console.error(err);
@@ -74,9 +81,9 @@ function CustomerDetails() {
         <p>Kod pocztowy: {customer?.address?.postcode}</p>
         <p>Miasto: {customer?.address?.city}</p>
         <p>NIP: {customer?.nip}</p>
-        <NavLink to="/" className="btn btn-secondary">
+        <Link to="/" className="btn btn-secondary">
           Powrót do listy
-        </NavLink>
+        </Link>
         <Button
           onClick={() => {
             setModalVisible(true);
@@ -99,7 +106,7 @@ function CustomerDetails() {
       <ActionFormModal
         show={modalVisible}
         onClose={() => setModalVisible(false)}
-        onChange={handleChange}
+        handleChange={handleChange}
         value={newAction}
         onConfirm={handleSubmit}
         customerName={customer?.name}
