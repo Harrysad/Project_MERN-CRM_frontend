@@ -10,6 +10,17 @@ const CustomerList = ({ customers, handleGetCustomers }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedCustomerId, setSelectedCustomerId] = useState();
 
+  const [sortField, setSortField] = useState("name");
+  const [sortOrder, setSortOrder] = useState("asc");
+
+  const handleSortChange = (e) => {
+    setSortField(e.target.value);
+  };
+
+  const toggleSortOrder = () => {
+    setSortOrder((prevOrder) => (prevOrder === "asc" ? "desc" : "asc"));
+  };
+
   const handleDelete = () => {
     if (selectedCustomerId) {
       deleteCustomer(selectedCustomerId)
@@ -29,6 +40,28 @@ const CustomerList = ({ customers, handleGetCustomers }) => {
 
   return (
     <>
+    <div className="d-flex justify-content-between align-items-center">
+        <div className="sortSection">
+          <label htmlFor="sortSelect">
+            Sortuj według:
+          </label>
+          <select
+            id="sortSelect"
+            className="form-select"
+            style={{ width: "200px", display: "inline-block" }}
+            value={sortField}
+            onChange={handleSortChange}
+          >
+            <option value="name">Nazwa firmy</option>
+            <option value="address.postcode">Kod pocztowy</option>
+            <option value="nip">NIP</option>
+          </select>
+        </div>
+        <button className="btn btn-secondary" onClick={toggleSortOrder}>
+          {sortOrder === "asc" ? "Sortuj malejąco" : "Sortuj rosnąco"}
+        </button>
+      </div>
+      
       <Table striped bordered hover variant="dark">
         <thead>
           <tr>

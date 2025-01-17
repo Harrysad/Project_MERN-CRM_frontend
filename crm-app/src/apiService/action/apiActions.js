@@ -1,13 +1,28 @@
 import axios from "axios";
 import config from "../../config";
+import { getCookie } from "../../helpers/helpers";
 
 const api = axios.create({
   baseURL: config.api.url + "/actions",
   headers: {
     "Content-Type": "application/json",
-    Authorization: JSON.parse(localStorage.getItem("user"))?.jwt,
+    Authorization: JSON.parse(getCookie("user") || 'null')?.jwt,
   },
 });
+
+
+api.interceptors.request.use(
+  (config) => {
+    const token = JSON.parse(getCookie("user") || "null")?.jwt; // Pobieranie tokena z cookies
+    if (token) {
+      config.headers["Authorization"] = token; // Dodanie tokena do nagłówka
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error); // Obsługa błędów żądań
+  }
+);
 
 export const getActions = async (customerId, page, limit) => {
   try {

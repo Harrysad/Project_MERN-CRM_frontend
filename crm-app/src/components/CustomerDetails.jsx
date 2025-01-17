@@ -91,16 +91,13 @@ function CustomerDetails() {
         >
           Dodaj nową akcję
         </Button>
-        {customer?.actions?.length > 0 ? (
-          <ActionList
-            actions={customer.actions}
-            onActionDelete={getCustomerData}
-            onEditAction={getCustomerData}
-            customerName={customer?.name}
-          />
-        ) : (
-          <p>Brak akcji dla tego klienta</p>
-        )}
+
+        <ActionList
+          onActionDelete={getCustomerData}
+          onEditAction={getCustomerData}
+          customerName={customer?.name}
+        />
+
       </div>
 
       <ActionFormModal

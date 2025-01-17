@@ -8,11 +8,11 @@ import { useEffect, useState } from "react";
 import DeleteModal from "./modals/DeleteModal";
 import ActionFormModal from "./modals/ActionFormModal";
 import Pagination from "./Pagination";
+import { useParams } from "react-router-dom";
 
 const ACTION_DATA_LIMIT = 8;
 
 const ActionList = ({
-  actions,
   onActionDelete,
   onEditAction,
   customerName,
@@ -32,7 +32,7 @@ const ActionList = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [totalActions, setTotalActions] = useState(0);
 
-  const customerId = actions.length > 0 ? actions[0].customer : null;
+  const customerId = useParams().id
 
   const handleGetActions = (page = currentPage, limit = ACTION_DATA_LIMIT) => {
     getActions(customerId, page, limit).then((res) => {
@@ -50,14 +50,14 @@ const ActionList = ({
 
   useEffect(() => {
     if (selectedActionId) {
-      const actionToEdit = actions.find(
+      const actionToEdit = allActions.find(
         (action) => action._id === selectedActionId
       );
       if (actionToEdit) {
         setEditAction(actionToEdit);
       }
     }
-  }, [selectedActionId, actions]);
+  }, [selectedActionId, allActions]);
 
   const handleDelete = () => {
     if (selectedActionId) {

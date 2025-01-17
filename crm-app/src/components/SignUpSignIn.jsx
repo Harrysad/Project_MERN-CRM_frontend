@@ -2,6 +2,7 @@ import { useState } from "react";
 import "./SignUpSignIn.css";
 import { addUser, logInUser } from "../apiService/user/apiUser";
 import { useNavigate } from "react-router-dom";
+import { setCookie } from "../helpers/helpers";
 
 export const SignUpSignIn = ({setUser}) => {
   const [isActive, setIsActive] = useState(false);
@@ -45,7 +46,7 @@ export const SignUpSignIn = ({setUser}) => {
     } else {
       logInUser({ email: newFormUser.email, password: newFormUser.password })
         .then((user) => {
-          localStorage.setItem('user', JSON.stringify(user));
+          setCookie(user)
           setUser(user)
           navigate("/");
           
@@ -94,6 +95,7 @@ export const SignUpSignIn = ({setUser}) => {
             placeholder="Name"
             required
           />
+          <span className="text-danger">Użytkownik istnieje</span>
           <input
             type="email"
             name="email"

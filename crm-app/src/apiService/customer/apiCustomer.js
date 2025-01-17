@@ -1,19 +1,32 @@
 import axios from "axios";
 import config from "../../config";
+import { getCookie } from "../../helpers/helpers";
 
 // Utworzenie instancji Axios
 const api = axios.create({
-  baseURL: config.api.url + '/customers', // Podstawowy URL API
+  baseURL: config.api.url + "/customers", // Podstawowy URL API
   headers: {
     "Content-Type": "application/json",
-    "Authorization": JSON.parse(localStorage.getItem('user'))?.jwt
+    Authorization: JSON.parse(getCookie("user") || "null")?.jwt,
   },
 });
 
+api.interceptors.request.use(
+  (config) => {
+    const token = JSON.parse(getCookie("user") || "null")?.jwt; // Pobieranie tokena z cookies
+    if (token) {
+      config.headers["Authorization"] = token; // Dodanie tokena do nagłówka
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error); // Obsługa błędów żądań
+  }
+);
 
-export const getCustomers = async (page, limit) => {
+export const getCustomers = async (page, limit, sort, order) => {
   try {
-    const response = await api.get(`/?page=${page}&limit=${limit}`); //Tu dodać dwa parametry ?page
+    const response = await api.get(`/?page=${page}&limit=${limit}&sort=${sort}&order=${order}`); //Tu dodać dwa parametry ?page
     return response.data;
   } catch (error) {
     console.error("Błąd podczas pobierania danych:", error);
@@ -51,14 +64,12 @@ export const updateCustomer = async (id, payload) => {
   }
 };
 
-
 export const addCustomer = async (payload) => {
-    try {
-      const response = await api.post(`/add`, payload);
-      return response.data;
-    } catch (error) {
-      console.error("Błąd podczas pobierania danych:", error);
-      throw error;
-    }
-  };
-  
+  try {
+    const response = await api.post(`/add`, payload);
+    return response.data;
+  } catch (error) {
+    console.error("Błąd podczas pobierania danych:", error);
+    throw error;
+  }
+};

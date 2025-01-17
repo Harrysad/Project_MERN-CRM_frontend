@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Route, Routes, Navigate, useNavigate, Link } from "react-router-dom";
+import { Route, Routes, Navigate, useNavigate, NavLink } from "react-router-dom";
 import "./App.css";
 
 import { getCustomers } from "./apiService/customer/apiCustomer";
@@ -7,8 +7,9 @@ import CustomerDetails from "./components/CustomerDetails";
 import CustomerForm from "./components/CustomerForm";
 import CustomerList from "./components/CustomerList";
 import { SignUpSignIn } from "./components/SignUpSignIn";
-import axios from "axios";
 import Pagination from "./components/Pagination";
+import { deleteCookie, getCookie } from "./helpers/helpers";
+import { Container, Nav, Navbar } from "react-bootstrap";
 
 const ProtectedRoute = ({ user, children }) => {
   if (!user) {
@@ -18,10 +19,12 @@ const ProtectedRoute = ({ user, children }) => {
   return children;
 };
 
-const CUSTOMER_DATA_LIMIT = 10;
+const CUSTOMER_DATA_LIMIT = 7;
 
 function App() {
-  const [user, setUser] = useState(JSON.parse(localStorage.getItem("user")));
+  const [user, setUser] = useState(JSON.parse(getCookie("user") || "null"));
+  const [expanded, setExpanded] = useState(false);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -32,9 +35,6 @@ function App() {
     }
   }, [user]);
 
-  axios.defaults.headers.common["Authorization"] = user?.jwt;
-
-  // console.log(user.jwt)
   const [customers, setCustomers] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCustomers, setTotalCustomers] = useState(0);
@@ -51,93 +51,49 @@ function App() {
   };
 
   useEffect(() => {
-    handleGetCustomers();
-  }, []);
+    if (user) {
+      handleGetCustomers();
+    }
+  }, [user]);
 
   const handleLogOut = (e) => {
     e.preventDefault();
 
     setUser(null);
-    localStorage.removeItem("user");
+    deleteCookie("user");
     navigate("/Home");
   };
+
+  const closeMenu = () => setExpanded(false);
 
   return (
     <>
       <div className="App">
         {user && (
-          <nav className="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
-            <div className="container-fluid">
-              <Link className="navbar-brand" to="/">
+          <Navbar expand="lg" expanded={expanded} bg="dark" variant="dark">
+            <Container>
+              <NavLink className="navbar-brand" to="/">
                 Customers Relationship Management
-              </Link>
-              <button
-                className="navbar-toggler"
-                type="button"
-                data-bs-toggle="offcanvas"
-                data-bs-target="#offcanvasDarkNavbar"
-                aria-controls="offcanvasDarkNavbar"
-                aria-label="Toggle navigation"
-              >
-                <span className="navbar-toggler-icon"></span>
-              </button>
-              <div
-                className="offcanvas offcanvas-end text-bg-dark"
-                tabIndex="-1"
-                id="offcanvasDarkNavbar"
-                aria-labelledby="offcanvasDarkNavbarLabel"
-              >
-                <div className="offcanvas-header">
-                  <h5 className="offcanvas-title" id="offcanvasDarkNavbarLabel">
-                    Nav Menu
-                  </h5>
-                  <button
-                    type="button"
-                    className="btn-close btn-close-white"
-                    data-bs-dismiss="offcanvas"
-                    aria-label="Close"
-                  ></button>
-                </div>
-                <div className="offcanvas-body">
-                  <ul className="navbar-nav justify-content-end flex-grow-1 pe-3">
-                    <li className="nav-item">
-                      <Link
-                        className="nav-link"
-                        to="/"
-                        onClick={() => {
-                          document.body.style = "";
-                          document.nav.style = "";
-                        }}
-                      >
-                        Customer List
-                      </Link>
-                    </li>
-                    <li className="nav-item">
-                      <Link
-                        className="nav-link"
-                        to="/customers/add"
-                        onClick={() => {
-                          document.body.style = "";
-                          document.nav.style = "";
-                        }}
-                      >
-                        Add new customer
-                      </Link>
-                    </li>
-                    <li className="nav-item">
-                      <Link
-                        className="nav-link"
-                        to="/Home"
-                        onClick={handleLogOut}
-                      >
-                        Log out
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </nav>
+              </NavLink>
+              <Navbar.Toggle
+                aria-controls="basic-navbar-nav"
+                onClick={() => setExpanded(!expanded)}
+              />
+              <Navbar.Collapse id="basic-navbar-nav">
+                <Nav className="navbar-nav justify-content-end flex-grow-1 pe-3">
+                  <NavLink to="/" className="nav-link text-dark mx-1" onClick={closeMenu}>
+                    Home
+                  </NavLink>
+                  <NavLink to="/customers/add" className="nav-link text-dark mx-1" onClick={closeMenu}>
+                    AddNew
+                  </NavLink>
+                  <a href="Home" className="nav-link text-dark mx-1" onClick={handleLogOut}>
+                    Logout
+                  </a>
+                </Nav>
+              </Navbar.Collapse>
+            </Container>
+          </Navbar>
         )}
         <div className="main-content">
           <Routes>
