@@ -37,6 +37,7 @@ export const getActions = async (customerId, page, limit) => {
 export const addAction = async (payload) => {
   try {
     const response = await api.post("/add", payload);
+    console.log(response);
     return response.data;
   } catch (error) {
     console.error("Błąd podczas pobierania danych: ", error);

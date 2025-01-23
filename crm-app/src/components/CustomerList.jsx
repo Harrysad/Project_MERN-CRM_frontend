@@ -5,21 +5,12 @@ import Table from "react-bootstrap/Table";
 import { formatZipCode, formatNipCode } from "../helpers/helpers";
 import DeleteModal from "./modals/DeleteModal";
 
-const CustomerList = ({ customers, handleGetCustomers }) => {
+const CustomerList = ({ customers, handleGetCustomers, handleSortChange, toggleSortOrder, sortField, sortOrder }) => {
   const [showMore, setShowMore] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedCustomerId, setSelectedCustomerId] = useState();
 
-  const [sortField, setSortField] = useState("name");
-  const [sortOrder, setSortOrder] = useState("asc");
 
-  const handleSortChange = (e) => {
-    setSortField(e.target.value);
-  };
-
-  const toggleSortOrder = () => {
-    setSortOrder((prevOrder) => (prevOrder === "asc" ? "desc" : "asc"));
-  };
 
   const handleDelete = () => {
     if (selectedCustomerId) {
@@ -40,7 +31,7 @@ const CustomerList = ({ customers, handleGetCustomers }) => {
 
   return (
     <>
-    <div className="d-flex justify-content-between align-items-center">
+      <div className="d-flex justify-content-between align-items-center">
         <div className="sortSection">
           <label htmlFor="sortSelect">
             Sortuj według:
@@ -61,7 +52,7 @@ const CustomerList = ({ customers, handleGetCustomers }) => {
           {sortOrder === "asc" ? "Sortuj malejąco" : "Sortuj rosnąco"}
         </button>
       </div>
-      
+
       <Table striped bordered hover variant="dark">
         <thead>
           <tr>

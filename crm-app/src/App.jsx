@@ -38,12 +38,22 @@ function App() {
   const [customers, setCustomers] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCustomers, setTotalCustomers] = useState(0);
+  const [sortField, setSortField] = useState("name");
+  const [sortOrder, setSortOrder] = useState("asc");
+
+  const handleSortChange = (e) => {
+    setSortField(e.target.value);
+  };
+
+  const toggleSortOrder = () => {
+    setSortOrder((prevOrder) => (prevOrder === "asc" ? "desc" : "asc"));
+  };
 
   const handleGetCustomers = (
     page = currentPage,
     limit = CUSTOMER_DATA_LIMIT
   ) => {
-    getCustomers(page, limit).then((res) => {
+    getCustomers(page, limit, sortField, sortOrder).then((res) => {
       setCustomers(res.data);
       setTotalCustomers(res.total);
       setCurrentPage(res.page);
@@ -54,7 +64,7 @@ function App() {
     if (user) {
       handleGetCustomers();
     }
-  }, [user]);
+  }, [user, sortField, sortOrder]);
 
   const handleLogOut = (e) => {
     e.preventDefault();
@@ -81,13 +91,13 @@ function App() {
               />
               <Navbar.Collapse id="basic-navbar-nav">
                 <Nav className="navbar-nav justify-content-end flex-grow-1 pe-3">
-                  <NavLink to="/" className="nav-link text-dark mx-1" onClick={closeMenu}>
+                  <NavLink to="/" className="nav-link mx-1" onClick={closeMenu}>
                     Home
                   </NavLink>
-                  <NavLink to="/customers/add" className="nav-link text-dark mx-1" onClick={closeMenu}>
+                  <NavLink to="/customers/add" className="nav-link mx-1" onClick={closeMenu}>
                     AddNew
                   </NavLink>
-                  <a href="Home" className="nav-link text-dark mx-1" onClick={handleLogOut}>
+                  <a href="Home" className="nav-link mx-1" onClick={handleLogOut}>
                     Logout
                   </a>
                 </Nav>
@@ -105,6 +115,10 @@ function App() {
                   <CustomerList
                     customers={customers}
                     handleGetCustomers={handleGetCustomers}
+                    handleSortChange={handleSortChange}
+                    toggleSortOrder={toggleSortOrder}
+                    sortField={sortField}
+                    sortOrder={sortOrder}
                   />
                   <Pagination
                     dataPerPage={CUSTOMER_DATA_LIMIT}

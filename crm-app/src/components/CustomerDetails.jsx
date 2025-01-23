@@ -6,14 +6,17 @@ import ActionList from "./ActionList";
 import { addAction } from "../apiService/action/apiActions";
 import { Button } from "react-bootstrap";
 import ActionFormModal from "./modals/ActionFormModal";
-
+import Pagination from "./Pagination";
+import { getActions } from "../apiService/action/apiActions";
 import { formatNipCode, formatZipCode } from "../helpers/helpers";
 
 const ACTION_INIT_FORM_DATA = {
   type: "",
   description: "",
   date: "",
-}
+};
+
+const ACTION_DATA_LIMIT = 4;
 
 function CustomerDetails() {
   const { id } = useParams();
@@ -40,9 +43,24 @@ function CustomerDetails() {
       });
   };
 
+  const [allActions, setAllActions] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalActions, setTotalActions] = useState(0);
+
+  const handleGetActions = (page = currentPage, limit = ACTION_DATA_LIMIT) => {
+    getActions(id, page, limit).then((res) => {
+      setAllActions(res?.data);
+      setTotalActions(res?.totalActions);
+      setCurrentPage(res?.page);
+    });
+  };
+
   useEffect(() => {
     getCustomerData();
-  }, [id]);
+    if (id) {
+      handleGetActions(currentPage, ACTION_DATA_LIMIT);
+    }
+  }, [id, ACTION_DATA_LIMIT]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -52,9 +70,7 @@ function CustomerDetails() {
     }));
   };
 
-  const resetForm = () => (
-    setNewAction(ACTION_INIT_FORM_DATA)
-  )
+  const resetForm = () => setNewAction(ACTION_INIT_FORM_DATA);
 
   const handleSubmit = () => {
     addAction({
@@ -62,7 +78,9 @@ function CustomerDetails() {
       customer: id,
     })
       .then(() => {
-        getCustomerData();
+        // console.log("Action added");
+        // console.log(newAction);
+        handleGetActions();
         setModalVisible(false);
         resetForm();
       })
@@ -93,11 +111,19 @@ function CustomerDetails() {
         </Button>
 
         <ActionList
-          onActionDelete={getCustomerData}
-          onEditAction={getCustomerData}
+          handleGetActions={handleGetActions}
           customerName={customer?.name}
+          allActions={allActions}
+          currentPage={currentPage}
+          dataPerPage={ACTION_DATA_LIMIT}
         />
 
+        <Pagination
+        dataPerPage={ACTION_DATA_LIMIT}
+        totalData={totalActions}
+        currentPage={currentPage}
+        paginate={(page) => handleGetActions(page)}
+      />
       </div>
 
       <ActionFormModal

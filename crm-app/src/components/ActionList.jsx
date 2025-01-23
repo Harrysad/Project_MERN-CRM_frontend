@@ -1,21 +1,19 @@
 import Table from "react-bootstrap/Table";
 import {
   deleteAction,
-  getActions,
   updateAction,
 } from "../apiService/action/apiActions";
 import { useEffect, useState } from "react";
 import DeleteModal from "./modals/DeleteModal";
 import ActionFormModal from "./modals/ActionFormModal";
-import Pagination from "./Pagination";
-import { useParams } from "react-router-dom";
-
-const ACTION_DATA_LIMIT = 8;
+// import { useParams } from "react-router-dom";
 
 const ActionList = ({
-  onActionDelete,
-  onEditAction,
+  handleGetActions,
   customerName,
+  allActions,
+  // currentPage,
+  // dataPerPage
 }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalEditVisible, setModalEditVisible] = useState(false);
@@ -28,25 +26,13 @@ const ActionList = ({
     customer: "",
   });
 
-  const [allActions, setAllActions] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalActions, setTotalActions] = useState(0);
+  // const customerId = useParams().id
 
-  const customerId = useParams().id
-
-  const handleGetActions = (page = currentPage, limit = ACTION_DATA_LIMIT) => {
-    getActions(customerId, page, limit).then((res) => {
-      setAllActions(res?.data);
-      setTotalActions(res?.totalActions);
-      setCurrentPage(res?.page);
-    });
-  };
-
-  useEffect(() => {
-    if (customerId) {
-      handleGetActions(currentPage, ACTION_DATA_LIMIT);
-    }
-  }, [customerId, currentPage]);
+  // useEffect(() => {
+  //   if (customerId) {
+  //     handleGetActions(currentPage, dataPerPage);
+  //   }
+  // }, [customerId, currentPage]);
 
   useEffect(() => {
     if (selectedActionId) {
@@ -63,19 +49,14 @@ const ActionList = ({
     if (selectedActionId) {
       deleteAction(selectedActionId)
         .then((res) => {
-          if (res.data) {
-            console.log(res.data);
+          if (res.deleted) {
+            console.log(res.deleted);
             setModalVisible(false);
-            onActionDelete();
+            handleGetActions(); //Tu powinienem przekazać funkcję do odświeżenia listy akcji
           }
         })
         .catch((err) => {
           console.log(err);
-        })
-        .finally(() => {
-          setModalVisible(false);
-          setSelectedActionId(false);
-          onActionDelete();
         });
     }
   };
@@ -92,14 +73,10 @@ const ActionList = ({
     updateAction(selectedActionId, editAction)
       .then(() => {
         setModalEditVisible(false);
-        onEditAction();
+        handleGetActions();
       })
       .catch((err) => {
         console.error(err);
-      })
-      .finally(() => {
-        setModalEditVisible(false);
-        onEditAction();
       });
   };
 
@@ -163,12 +140,7 @@ const ActionList = ({
         onConfirm={handleSubmit}
         customerName={customerName}
         formMode="edit"
-      />
-      <Pagination
-        dataPerPage={ACTION_DATA_LIMIT}
-        totalData={totalActions}
-        currentPage={currentPage}
-        paginate={(page) => handleGetActions(page)}
+        handleGetActions={handleGetActions}
       />
     </>
   );
