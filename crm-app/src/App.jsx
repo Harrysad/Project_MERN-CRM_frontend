@@ -9,13 +9,9 @@ import CustomerList from "./components/CustomerList";
 import { SignUpSignIn } from "./components/SignUpSignIn";
 import Pagination from "./components/Pagination";
 import { deleteCookie, getCookie } from "./helpers/helpers";
-import { Container, Nav, Navbar } from "react-bootstrap";
 
 const ProtectedRoute = ({ user, children }) => {
-  if (!user) {
-    return <Navigate to="/home" replace />;
-  }
-
+  if (!user) return <Navigate to="/home" replace />;
   return children;
 };
 
@@ -23,15 +19,16 @@ const CUSTOMER_DATA_LIMIT = 7;
 
 function App() {
   const [user, setUser] = useState(JSON.parse(getCookie("user") || "null"));
-  const [expanded, setExpanded] = useState(false);
-
+  const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     if (user) {
       document.body.classList.add("logged-in");
+      document.body.classList.remove("login-page");
     } else {
       document.body.classList.remove("logged-in");
+      document.body.classList.add("login-page");
     }
   }, [user]);
 
@@ -41,18 +38,11 @@ function App() {
   const [sortField, setSortField] = useState("name");
   const [sortOrder, setSortOrder] = useState("asc");
 
-  const handleSortChange = (e) => {
-    setSortField(e.target.value);
-  };
+  const handleSortChange = (e) => setSortField(e.target.value);
+  const toggleSortOrder = () =>
+    setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
 
-  const toggleSortOrder = () => {
-    setSortOrder((prevOrder) => (prevOrder === "asc" ? "desc" : "asc"));
-  };
-
-  const handleGetCustomers = (
-    page = currentPage,
-    limit = CUSTOMER_DATA_LIMIT
-  ) => {
+  const handleGetCustomers = (page = currentPage, limit = CUSTOMER_DATA_LIMIT) => {
     getCustomers(page, limit, sortField, sortOrder).then((res) => {
       setCustomers(res.data);
       setTotalCustomers(res.total);
@@ -61,102 +51,118 @@ function App() {
   };
 
   useEffect(() => {
-    if (user) {
-      handleGetCustomers();
-    }
+    if (user) handleGetCustomers();
   }, [user, sortField, sortOrder]);
 
   const handleLogOut = (e) => {
     e.preventDefault();
-
     setUser(null);
     deleteCookie("user");
     navigate("/Home");
   };
 
-  const closeMenu = () => setExpanded(false);
+  const closeMenu = () => setMenuOpen(false);
 
   return (
-    <>
-      <div className="App">
-        {user && (
-          <Navbar expand="lg" expanded={expanded} bg="dark" variant="dark">
-            <Container>
-              <NavLink className="navbar-brand" to="/">
-                Customers Relationship Management
-              </NavLink>
-              <Navbar.Toggle
-                aria-controls="basic-navbar-nav"
-                onClick={() => setExpanded(!expanded)}
-              />
-              <Navbar.Collapse id="basic-navbar-nav">
-                <Nav className="navbar-nav justify-content-end flex-grow-1 pe-3">
-                  <NavLink to="/" className="nav-link mx-1" onClick={closeMenu}>
-                    Home
-                  </NavLink>
-                  <NavLink to="/customers/add" className="nav-link mx-1" onClick={closeMenu}>
-                    AddNew
-                  </NavLink>
-                  <a href="Home" className="nav-link mx-1" onClick={handleLogOut}>
-                    Logout
-                  </a>
-                </Nav>
-              </Navbar.Collapse>
-            </Container>
-          </Navbar>
-        )}
-        <div className="main-content">
-          <Routes>
-            <Route path="/Home" element={<SignUpSignIn setUser={setUser} />} />
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute user={user}>
-                  <CustomerList
-                    customers={customers}
-                    handleGetCustomers={handleGetCustomers}
-                    handleSortChange={handleSortChange}
-                    toggleSortOrder={toggleSortOrder}
-                    sortField={sortField}
-                    sortOrder={sortOrder}
-                  />
-                  <Pagination
-                    dataPerPage={CUSTOMER_DATA_LIMIT}
-                    totalData={totalCustomers}
-                    currentPage={currentPage}
-                    paginate={(page) => handleGetCustomers(page)}
-                  />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/customers/add"
-              element={
-                <ProtectedRoute user={user}>
-                  <CustomerForm getCustomers={handleGetCustomers} />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/customers/edit/:id"
-              element={
-                <ProtectedRoute user={user}>
-                  <CustomerForm getCustomers={handleGetCustomers} />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/customers/:id"
-              element={
-                <ProtectedRoute user={user}>
-                  <CustomerDetails />
-                </ProtectedRoute>
-              }
-            />
-          </Routes>
-        </div>
-      </div>
-    </>
+    <div className="App">
+      {user && (
+        <nav className="crm-navbar">
+          <NavLink className="crm-navbar__brand" to="/" onClick={closeMenu}>
+            <div className="crm-navbar__brand-icon">
+              <i className="fa-solid fa-chart-line"></i>
+            </div>
+            <span className="crm-navbar__brand-text">
+              CRM<span>Pro</span>
+            </span>
+          </NavLink>
+
+          <div className="crm-navbar__divider" />
+
+          <div className={`crm-navbar__nav${menuOpen ? " open" : ""}`}>
+            <NavLink to="/" className="crm-navbar__link" onClick={closeMenu} end>
+              <i className="fa-solid fa-users"></i>
+              Klienci
+            </NavLink>
+            <NavLink to="/customers/add" className="crm-navbar__link" onClick={closeMenu}>
+              <i className="fa-solid fa-user-plus"></i>
+              Dodaj klienta
+            </NavLink>
+          </div>
+
+          <div className="crm-navbar__right">
+            <a href="/Home" className="crm-navbar__logout" onClick={handleLogOut}>
+              <i className="fa-solid fa-right-from-bracket"></i>
+              Wyloguj
+            </a>
+            <button
+              className="crm-navbar__toggle"
+              onClick={() => setMenuOpen((o) => !o)}
+              aria-label="Menu"
+            >
+              <i className={`fa-solid ${menuOpen ? "fa-xmark" : "fa-bars"}`}></i>
+            </button>
+          </div>
+        </nav>
+      )}
+
+      <Routes>
+        <Route path="/Home" element={<SignUpSignIn setUser={setUser} />} />
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute user={user}>
+              <div className="main-content">
+                <CustomerList
+                  customers={customers}
+                  totalCustomers={totalCustomers}
+                  handleGetCustomers={handleGetCustomers}
+                  handleSortChange={handleSortChange}
+                  toggleSortOrder={toggleSortOrder}
+                  sortField={sortField}
+                  sortOrder={sortOrder}
+                />
+                <Pagination
+                  dataPerPage={CUSTOMER_DATA_LIMIT}
+                  totalData={totalCustomers}
+                  currentPage={currentPage}
+                  paginate={(page) => handleGetCustomers(page)}
+                />
+              </div>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/customers/add"
+          element={
+            <ProtectedRoute user={user}>
+              <div className="main-content">
+                <CustomerForm getCustomers={handleGetCustomers} />
+              </div>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/customers/edit/:id"
+          element={
+            <ProtectedRoute user={user}>
+              <div className="main-content">
+                <CustomerForm getCustomers={handleGetCustomers} />
+              </div>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/customers/:id"
+          element={
+            <ProtectedRoute user={user}>
+              <div className="main-content">
+                <CustomerDetails />
+              </div>
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </div>
   );
 }
 

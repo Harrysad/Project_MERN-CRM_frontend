@@ -1,28 +1,21 @@
-function Pagination({
-  dataPerPage,
-  totalData,
-  currentPage,
-  paginate,
-}) {
-  const pageNumbers = [];
+function Pagination({ dataPerPage, totalData, currentPage, paginate }) {
+  const totalPages = Math.ceil(totalData / dataPerPage);
+  if (totalPages <= 1) return null;
 
-  for (let i = 1; i <= Math.ceil(totalData / dataPerPage); i++) {
-    pageNumbers.push(i);
-  }
+  const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
 
   return (
-    <nav>
-      <ul className="pagination">
-        {pageNumbers.map((number) => (
+    <nav aria-label="Paginacja">
+      <ul className="crm-pagination">
+        {pages.map((number) => (
           <li
             key={number}
-            
-            className={`page-item ${currentPage === number ? "active" : ""}`}
+            className={`crm-pagination__item${currentPage === number ? " active" : ""}`}
           >
             <a
-              onClick={() => {
-                paginate(number);
-              }}
+              onClick={(e) => { e.preventDefault(); paginate(number); }}
+              href="#"
+              aria-current={currentPage === number ? "page" : undefined}
             >
               {number}
             </a>
